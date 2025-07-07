@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+
+  <!-- Font Awesome for icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Global reset and body */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* HEADER */
+    .header {
+      background-color: #f4f4f4;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header__logo {
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #148;
+      text-decoration: none;
+      gap: 0.5rem;
+    }
+
+    .header__toggle {
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: none;
+      color: #148;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 250px;
+      height: calc(100vh - 64px);
+      background-color: #ffffff;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      padding: 1rem;
+      overflow-y: auto;
+      transition: transform 0.3s ease;
+      z-index: 999;
+    }
+
+    .sidebar__user {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar__img img {
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+    }
+
+    .sidebar__info {
+      margin-left: 1rem;
+    }
+
+    .sidebar__info h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar__list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .sidebar__link {
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .sidebar__link:hover,
+    .sidebar__link.active-link {
+      color: #1a73e8;
+    }
+
+    .sidebar__actions {
+      margin-top: 2rem;
+    }
+
+    .sidebar__theme {
+      background: none;
+      border: none;
+      font: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      color: #333;
+    }
+
+    /* MAIN CONTENT */
+    .main {
+      margin-left: 250px;
+      padding: 5rem 2rem 2rem;
+      min-height: 100vh;
+      background-color: transparent;
+      transition: margin-left 0.3s ease;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Cards container: vertical stack */
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    /* Base card styles */
+    .card {
+      position: relative;
+      background: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      padding: 20px 32px 24px 50px;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      max-width: 900px;
+      box-sizing: border-box;
+      animation: fadeSlideUp 0.6s ease forwards;
+      opacity: 0;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      transform: translateY(-5px);
+    }
+
+    /* Icon styles */
+    .card-icon {
+      position: absolute;
+      top: 32px;
+      left: 24px;
+      font-size: 1rem;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    /* Individual card customizations */
+
+    /* Main Balance */
+    .card.main-balance {
+      background: linear-gradient(185deg, rgb(42, 72, 120), rgb(20, 22, 128));
+      color: #fff;
+    }
+    .card.main-balance .balance-amount {
+      color: #FFF;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+    .card.main-balance .balance-name {
+      font-size: 1.0rem;
+      margin-top: 10px;
+      color: #ccc;
+    }
+    .card.main-balance .card-icon {
+      color: #fff;
+      font-size: 20px;
+      margin: 0;
+    }
+
+    /* Deposit Balance */
+    .card.deposit-balance {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      color: #222;
+      font-weight: bold;
+    }
+    .card.deposit-balance .balance-amount {
+      color: #111;
+      margin: 0;
+            font-size: 18px;
+      
+      font-weight: 600;
+    }
+    .card.deposit-balance .card-icon {
+      color: #28a745;
+    }
+
+    /* Total Withdrawal */
+    .card.withdrawal-balance {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      color: #111;
+    }
+    .card.withdrawal-balance .balance-amount {
+      color: #222;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .card.withdrawal-balance .card-icon {
+      color: #dc3545;
+    }
+
+    /* Total Earned Balance */
+    .card.earned-balance {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      color: #111;
+    }
+    .card.earned-balance .balance-amount {
+      color: #222;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .card.earned-balance .card-icon {
+      color: #ffc107;
+    }
+
+    /* Balance name style */
+    .balance-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    /* Amount style */
+    .balance-amount {
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    /* Button row on Main Balance only */
+    .button-row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-top-left-radius: 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: #fff;
+    }
+
+    .btn-invest {
+      background-color: #fff;
+      color: #c82333;
+      border-top-left-radius: 10px;
+    }
+
+    .btn-invest:hover {
+      background-color: #22a6df;
+    }
+
+    .btn-withdraw {
+      background-color: #c82333;
+      border-top-right-radius: 10px;
+    }
+
+    .btn-withdraw:hover {
+      background-color: #148fff;
+    }
+ .actions {
+      display: flex;
+      justify-content: space-between;
+      margin: 2.5rem 0 1rem;
+      background-color: #ffffff;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .actions button {
+      flex: 1;
+      margin: 0 5px;
+      background: #e6f0ff;
+      border: none;
+      padding: 0.7rem 0;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      color: #1a4d8f;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .actions button:hover {
+      background: #ddd;
+    }
+    .status-approved { color: green; }
+    .status-pending { color: orange; }
+    .status-rejected { color: red; }
+    ul { list-style: none; padding: 0; }
+    li { background: #fff; margin: 10px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Animation keyframes */
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Stagger animation delays */
+    .cards-container .card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .cards-container .card:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+
+    .cards-container .card:nth-child(3) {
+      animation-delay: 0.5s;
+    }
+
+    .cards-container .card:nth-child(4) {
+      animation-delay: 0.7s;
+    }
+
+    /* Responsive */
+    @media screen and (max-width: 768px) {
+      .main {
+        margin-left: 0;
+        padding: 6rem 1rem 2rem;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 999;
+      }
+
+      .sidebar.show-sidebar {
+        transform: translateX(0);
+      }
+
+      .header__toggle {
+        display: block;
+      }
+    }
+
+    /* DARK MODE */
+    body.dark-theme {
+      background-color: #1e1e2f;
+      color: #eee;
+    }
+
+    body.dark-theme .header,
+    body.dark-theme .sidebar,
+    body.dark-theme .card {
+      background-color: #2c2c3e;
+      color: #eee;
+    }
+
+    body.dark-theme .sidebar__link,
+    body.dark-theme .sidebar__theme {
+      color: #eee;
+    }
+
+    body.dark-theme .btn-invest:hover {
+      background-color: #1e7e34;
+    }
+
+    body.dark-theme .btn-withdraw:hover {
+      background-color: #a71d2a;
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <a href="#" class="header__logo">
+
+      <span id="userNameDisplay">Welcome</span>
+    </a>
+    <div class="header__toggle" id="header-toggle">
+      <i class="fas fa-bars"></i>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__user">
+      <div class="sidebar__img">
+        <img src="https://i.pravatar.cc/50" alt="User" />
+      </div>
+      <div class="sidebar__info">
+        <h3>Loading...</h3>
+        <span>Registered</span>
+      </div>
+    </div>
+
+    <ul class="sidebar__list">
+      <a href="#" class="sidebar__link active-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="#" class="sidebar__link"><i class="fas fa-user"></i><span>Users</span></a>
+      <a href="#" class="sidebar__link"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+    </ul>
+
+    <div class="sidebar__actions">
+      <button class="sidebar__link sidebar__theme" id="theme-button">
+        <i class="fas fa-moon"></i><span>Dark Mode</span>
+      </button>
+      <br>
+      <button class="sidebar__link sidebar__theme" id="logout-btn">
+        <i class="fas fa-arrow-left"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="container">
+
+
+      <div class="cards-container">
+        <!-- Main Balance -->
+        <div class="card main-balance">
+          <i class="fas fa-wallet card-icon"></i>
+          <div class="balance-name">Main Balance</div>
+          <div class="balance-amount" id="balance-display">Loading...</div>
+          <div class="button-row">
+            <button class="btn btn-invest">Deposit</button>
+            <button class="btn btn-withdraw">Withdraw</button>
+          </div>
+        </div>
+
+        <!-- Deposit Balance -->
+        <div class="card deposit-balance">
+          <i class="fas fa-piggy-bank card-icon"></i>
+          <div class="balance-name">Deposit Balance</div>
+          <div class="balance-amount" id="deposit-balance">Loading... ..</div>
+        </div>
+
+        <!-- Total Withdrawal -->
+        <div class="card withdrawal-balance">
+          <i class="fas fa-credit-card card-icon"></i>
+          <div class="balance-name">Total Withdrawal</div>
+          <div class="balance-amount" id="withdrawal-balance">Loading...</div>
+        </div>
+        <div class="card deposit-balance">
+          <i class="fas fa-piggy-bank card-icon"></i>
+          <div class="balance-name">Total Profit</div>
+          <div class="balance-amount" id="profit-balance">Loading...</div>
+        </div>
+        <!-- Total Earned Balance -->
+        <div class="card earned-balance">
+          <i class="fas fa-coins card-icon"></i>
+          <div class="balance-name">Total Earned Balance</div>
+          <div class="balance-amount" id="bonus">Loading...</div>
+        </div>
+      </div>
+      
+      
+    </div>
+    
+    <div class="actions">
+          
+      <button>          <i class="fas fa-piggy-bank"></i> 
+Invest</button>
+      <button>          <i class="fas fa-coins"></i> History</button>
+      <button>           <i class="fas fa-coins"></i> Settings</button>
+
+    </div>
+    <p>Transactions History</p>
+    <hr>
+      <ul id="transaction-list"></ul>
+  </main>
+  
+ <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtVvPjdsj84mWqaG4-7SyjbljCnslZ1SM",
+      authDomain: "hendaa-1.firebaseapp.com",
+      projectId: "hendaa-1",
+      storageBucket: "hendaa-1.appspot.com",
+      messagingSenderId: "831134776479",
+      appId: "1:831134776479:web:56cd7098fc69cd70a376aa"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    function updateBalanceDisplay(userData) {
+      const updateText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = `NGN ${value}`;
+      };
+      updateText('balance-display', userData.mainBalance || 0);
+      updateText('deposit-balance', userData.depositBalance || 0);
+      updateText('withdrawal-balance', userData.totalWithdrawalBalance || 0);
+      updateText('bonus', userData.bonusBalance || 0);
+      updateText('profit-balance', userData.profitBalance || 0);
+    }
+
+    function updateTransactionList(transactions) {
+      const transactionList = document.getElementById("transaction-list");
+      if (!transactionList) return;
+      transactionList.innerHTML = "";
+      transactions.forEach((tx) => {
+        const statusClass = tx.status === 'Approved' ? 'status-approved' :
+                            tx.status === 'Pending' ? 'status-pending' : 'status-rejected';
+        const icon = tx.type === 'Deposit' ? '💰' : tx.type === 'Withdrawal' ? '🏦' : '🔄';
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="icon">${icon}</span>
+          <div class="details">
+            <strong>${tx.type}</strong> - $${tx.amount}
+            <div class="timestamp">${new Date(tx.timestamp.seconds * 1000).toLocaleString()}</div>
+          </div>
+          <div class="${statusClass}">${tx.status}</div>
+        `;
+        transactionList.appendChild(li);
+      });
+    }
+
+    function logout() {
+      signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }).catch((error) => {
+        console.error("Logout error:", error);
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return window.location.href = "login.html";
+
+      const uid = user.uid;
+      
+
+      try {
+        const docRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          updateBalanceDisplay(userData);
+
+          const name = userData.name || "User";
+          document.getElementById('userNameDisplay').textContent = `Welcome, ${name}!`;
+        }
+      } catch (err) {
+        console.error("Error loading user data:", err);
+      }
+
+      try {
+        const txQuery = query(collection(db, "transactions"), where("userId", "==", uid));
+        const querySnapshot = await getDocs(txQuery);
+        const transactions = querySnapshot.docs.map(doc => doc.data());
+        updateTransactionList(transactions);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', logout);
+  </script>  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleButton = document.getElementById('sidebar-toggle');
+      const closeButton = document.getElementById('close-sidebar');
+
+      toggleButton.addEventListener('click', function() {
+        sidebar.style.width = sidebar.style.width === '250px' ? '0' : '250px';
+      });
+
+      closeButton.addEventListener('click', function() {
+        sidebar.style.width = '0';
+      });
+
+      document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !toggleButton.contains(event.target)) {
+          sidebar.style.width = '0';
+        }
+      });
+    });
+  </script>
+  <!-- JAVASCRIPT -->
+  <script>
+    const headerToggle = document.getElementById('header-toggle'),
+          sidebar = document.getElementById('sidebar'),
+          themeButton = document.getElementById('theme-button'),
+          body = document.body;
+
+    // Toggle sidebar for mobile
+    headerToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show-sidebar');
+    });
+
+    // Toggle dark mode
+    themeButton.addEventListener('click', () => {
+      body.classList.toggle('dark-theme');
+    });
+  </script>
+</body>
+</html>
